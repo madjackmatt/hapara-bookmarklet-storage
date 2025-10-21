@@ -1,9 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head><meta charset="utf-8"><title>Hapara Storage</title></head>
 <body>
 <script>
+/* Initialize storage if missing */
 if(!localStorage.haparaGlobalData) localStorage.haparaGlobalData='[]';
+/* Listen for parent messages */
+window.addEventListener('message',function(ev){
+  try{
+    var m = ev.data;
+    if(!m || !m.type) return;
+    if(m.type === 'getData'){
+      var data = localStorage.haparaGlobalData || '[]';
+      ev.source.postMessage({type:'data', id:m.id, data:data}, ev.origin);
+    } else if(m.type === 'setData'){
+      localStorage.haparaGlobalData = m.data || '[]';
+      ev.source.postMessage({type:'saved', id:m.id}, ev.origin);
+    }
+  }catch(e){}
+});
 </script>
 </body>
 </html>
